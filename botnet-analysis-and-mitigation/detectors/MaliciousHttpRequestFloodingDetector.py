@@ -24,7 +24,7 @@ def checkWindowFrame(index, pcapRecords, windowSize, thresholdPercentage):
 
 
 def extractRequestEndpoint(httpPacketInfo):
-	matcher = re.match('((GET|PUT|POST|DELETE|PATCH)+\s(\/\w+)*(\.\w+)*)', httpPacketInfo)
+	matcher = re.match('((GET|PUT|POST|DELETE|PATCH)+\s(\w+\:\/\/)*((\w+)*(\.)*)*(\/\w+)*(\.\w+)*)', httpPacketInfo)
 	if matcher:
 		return matcher.group()
 	return ''
