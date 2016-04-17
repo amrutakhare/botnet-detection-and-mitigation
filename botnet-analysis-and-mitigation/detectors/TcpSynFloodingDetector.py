@@ -19,4 +19,4 @@ def checkWindowFrame(index, pcapRecords, windowSize, thresholdPercentage):
 
 # Check if the current packet contributes to the TCP SYN Flooding
 def isTCPSynPacket(protocol, info):
-	return protocol=='TCP' and all( partialDetector in info for partialDetector in ['[SYN]','LEN=0','Seq=0'])
+	return protocol=='TCP' and all( partialDetector in info for partialDetector in ['Len=0','Seq=0']) and any(partialDetector in info for partialDetector in ['[SYN]','[SYN, ACK]'])
