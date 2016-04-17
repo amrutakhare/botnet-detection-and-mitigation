@@ -3,6 +3,7 @@
 import sys
 sys.path.append('../parsers')
 sys.path.append('../detectors')
+import os
 
 import ConfigParser
 import PCAPParser as pcapParser
@@ -11,64 +12,82 @@ import IcmpEchoFloodingDetector as icmpDetector
 import MaliciousHttpRequestFloodingDetector as httpEndpointDetector
 import MaliciousDomainDetector as domainDetector
 
+def processPcapCSV(fileName):
 
-# Parse PCAP File.
-pcapRecords = pcapParser.extractPCAPRecords('../testFiles/sample_pcap.csv')
+	print '\n********************************************************************************' 
+	print '\n\nStarting Analysis for: ' + fileName 
 
-#for record in pcapRecords:
-#	print record.sourceIp + ', ' + record.timestamp
+	# Parse PCAP File.
+	pcapRecords = pcapParser.extractPCAPRecords('../testFiles/' + fileName)
 
-
-# Read All Detector Configs
-config = ConfigParser.ConfigParser()
-config.read('./configuration/main.config.ini')
-
-
-# TCP SYN Packet Threshold per Window Size.
-tcpSynThreshold = int(config.get('TCP Detector Config', 'thresholdPercentage'))
-
-# TCP Window Size in Seconds.
-tcpWindowSize = int(config.get('TCP Detector Config', 'windowSize'))
+	#for record in pcapRecords:
+	#	print record.sourceIp + ', ' + record.timestamp
 
 
-# ICMP Echo Packet Threshold per Window Size.
-icmpEchoThreshold = int(config.get('ICMP Detector Config', 'thresholdPercentage'))
+	print '\n\nReading Configurations.... '
 
-# ICMP Echo in Seconds.
-icmpWindowSize = int(config.get('ICMP Detector Config', 'windowSize'))
-
-
-# HTTP Request Endpoint Flooding Threshold per Window Size.
-httpEndpointThreshold = int(config.get('HTTP Endpoint Flooding Detector Config', 'thresholdPercentage'))
-
-# HTTP Request Endpoint Flooding Window Size in Seconds.
-httpEndpointWindowSize = int(config.get('HTTP Endpoint Flooding Detector Config', 'windowSize'))
-
-# Malicious Domain Detector Batch Size.
-virusTotalBatchSize = int(config.get('Malicious Domain Detector Config', 'batchSize'))
-
-# Malicious Domain Detector VirusTotalUrl.
-virusTotalUrl = config.get('Malicious Domain Detector Config', 'virusTotalUrl')
-
-# Malicious Domain Detector VirusTotalApiKey.
-virusTotalApiKey = config.get('Malicious Domain Detector Config', 'virusTotalApiKey')
+	# Read All Detector Configs
+	config = ConfigParser.ConfigParser()
+	config.read('./configuration/main.config.ini')
 
 
+	# TCP SYN Packet Threshold per Window Size.
+	tcpSynThreshold = int(config.get('TCP Detector Config', 'thresholdPercentage'))
 
-# Run Detectors against extracted PCAP Records.
+	# TCP Window Size in Seconds.
+	tcpWindowSize = int(config.get('TCP Detector Config', 'windowSize'))
 
-print 'Start detecting TCP SYN Flooding....'
-tcpDetector.detectTCPSynFlooding(pcapRecords, tcpSynThreshold, tcpWindowSize)
-print 'Finished detecting TCP SYN Flooding.'
 
-print 'Start detecting ICMP Echo Flooding....'
-icmpDetector.detectICMPEchoFlooding(pcapRecords, icmpEchoThreshold, icmpWindowSize)
-print 'Finished detecting ICMP Echo Flooding.'
+	# ICMP Echo Packet Threshold per Window Size.
+	icmpEchoThreshold = int(config.get('ICMP Detector Config', 'thresholdPercentage'))
 
-print 'Start detecting HTTP Request Endpoint Flooding....'
-httpEndpointDetector.detectMaliciousHttpRequests(pcapRecords, httpEndpointThreshold, httpEndpointWindowSize)
-print 'Finished detecting HTTP Request Endpoint Flooding.'
+	# ICMP Echo in Seconds.
+	icmpWindowSize = int(config.get('ICMP Detector Config', 'windowSize'))
 
-print 'Start detecting Malicious Domains....'
-domainDetector.detectMaliciousDomains(pcapRecords, virusTotalBatchSize, virusTotalUrl, virusTotalApiKey)
-print 'Finished detecting Malicious Domains.'
+
+	# HTTP Request Endpoint Flooding Threshold per Window Size.
+	httpEndpointThreshold = int(config.get('HTTP Endpoint Flooding Detector Config', 'thresholdPercentage'))
+
+	# HTTP Request Endpoint Flooding Window Size in Seconds.
+	httpEndpointWindowSize = int(config.get('HTTP Endpoint Flooding Detector Config', 'windowSize'))
+
+	# Malicious Domain Detector Batch Size.
+	virusTotalBatchSize = int(config.get('Malicious Domain Detector Config', 'batchSize'))
+
+	# Malicious Domain Detector VirusTotalUrl.
+	virusTotalUrl = config.get('Malicious Domain Detector Config', 'virusTotalUrl')
+
+	# Malicious Domain Detector VirusTotalApiKey.
+	virusTotalApiKey = config.get('Malicious Domain Detector Config', 'virusTotalApiKey')
+
+
+
+	# Run Detectors against extracted PCAP Records.
+
+	print 'Detection Technique: TCP SYN Flooding'
+	print 'Start detecting....'
+	tcpDetector.detectTCPSynFlooding(pcapRecords, tcpSynThreshold, tcpWindowSize)
+	print 'Finished detecting....\n'
+
+	print 'Detection Technique: ICMP Echo Flooding'
+	print 'Start detecting....'
+	icmpDetector.detectICMPEchoFlooding(pcapRecords, icmpEchoThreshold, icmpWindowSize)
+	print 'Finished detecting....\n'
+
+	print 'Detection Technique: HTTP Request Endpoint Flooding'
+	print 'Start detecting....'
+	httpEndpointDetector.detectMaliciousHttpRequests(pcapRecords, httpEndpointThreshold, httpEndpointWindowSize)
+	print 'Finished detecting....\n'
+
+	print 'Detection Technique: Malicious Domains'
+	print 'Start detecting....'
+	domainDetector.detectMaliciousDomains(pcapRecords, virusTotalBatchSize, virusTotalUrl, virusTotalApiKey)
+	print 'Finished detecting....\n'
+
+	print '\n\nEnded Analysis for: ' + fileName 
+	print '\n********************************************************************************' 
+
+for file in os.listdir("../testFiles"):
+    if file.endswith(".csv"):
+        processPcapCSV(file)
+
