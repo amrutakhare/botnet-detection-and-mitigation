@@ -54,10 +54,14 @@ def sendAndAnalyze(request, virusTotalUrl, destinationIpAddress):
 	try:
 		batchResponse = json.loads(response)
 		if 'detected_urls' in batchResponse:
+			count = 0
 			for detection in batchResponse['detected_urls']:
+				if count > 2:
+					break
 				try:
 					if  int(detection['positives']) > 0:
 						print 'Found ' + str(detection['positives']) + ' virus alerts from Virus Analysis Sites, out of ' + str(detection['total']) + ' for IP Address (' + destinationIpAddress + ') resolving to: ' + detection['url']
+						count = count + 1
 				except TypeError, e:
 					pass
 	except ValueError, e:
