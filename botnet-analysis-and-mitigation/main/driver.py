@@ -11,6 +11,7 @@ import TcpSynFloodingDetector as tcpDetector
 import IcmpEchoFloodingDetector as icmpDetector
 import MaliciousHttpRequestFloodingDetector as httpEndpointDetector
 import MaliciousDomainDetector as domainDetector
+import MaliciousDestinationAddressDetector as destinationDetector
 
 def processPcapCSV(fileName):
 
@@ -54,8 +55,11 @@ def processPcapCSV(fileName):
 	# Malicious Domain Detector Batch Size.
 	virusTotalBatchSize = int(config.get('Malicious Domain Detector Config', 'batchSize'))
 
-	# Malicious Domain Detector VirusTotalUrl.
+	# Malicious Domain Detector VirusTotalUrl for Domain.
 	virusTotalUrl = config.get('Malicious Domain Detector Config', 'virusTotalUrl')
+
+	# Malicious Domain Detector VirusTotalUrl for IP.
+	virusTotalUrlIpReport = config.get('Malicious Domain Detector Config', 'virusTotalUrlIpReport')
 
 	# Malicious Domain Detector VirusTotalApiKey.
 	virusTotalApiKey = config.get('Malicious Domain Detector Config', 'virusTotalApiKey')
@@ -84,10 +88,14 @@ def processPcapCSV(fileName):
 	domainDetector.detectMaliciousDomains(pcapRecords, virusTotalBatchSize, virusTotalUrl, virusTotalApiKey)
 	print 'Finished detecting....\n'
 
+	print 'Detection Technique: Malicious Destination IP (HTTP POST, TCP, DNS)'
+	print 'Start detecting....'
+	destinationDetector.detectMaliciousDestinationAddresses(pcapRecords, 1, virusTotalUrlIpReport, virusTotalApiKey)
+	print 'Finished detecting....\n'
+
 	print '\n\nEnded Analysis for: ' + fileName 
 	print '\n********************************************************************************' 
 
 for file in os.listdir("../testFiles"):
     if file.endswith(".csv"):
         processPcapCSV(file)
-
