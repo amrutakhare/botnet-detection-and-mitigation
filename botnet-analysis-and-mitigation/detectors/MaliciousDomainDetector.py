@@ -22,6 +22,7 @@ def extractMaliciousDomains(pcapRecords):
 	allDomains = [record.domain for record in pcapRecords]	
 	maliciousDomains = filter(lambda domain: domain!='', allDomains)
 	maliciousDomains = filter(lambda domain: isNotIPAddress(domain), maliciousDomains)	
+	maliciousDomains = filter(lambda domain: ':' not in domain, maliciousDomains)
 	maliciousDomains = list(set(maliciousDomains))
 	return maliciousDomains
 
@@ -49,12 +50,24 @@ def isValidJson(myjson):
     return False
   return True
 
+def is_number(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
 
 def sendAndAnalyze(batchRequest, virusTotalUrl):
 	data = urllib.urlencode(batchRequest)
 	req = urllib2.Request(virusTotalUrl, data)
 	response = urllib2.urlopen(req)
-	batchResponse = json.loads(response.read())
-	for response in batchResponse:
-		if int(response['positives']) > 0:
-			print 'Found ' + str(response['positives']) + ' virus alerts from Virus Analysis Sites, out of ' + str(response['total']) + ' for Domain: ' + response['resource']
+	try:
+	    batchResponse = json.loads(response.read())
+	    for response in batchResponse:
+	        try:
+	            if 'positives' in response and is_number(response['positives']) and int(response['positives']) > 0:
+	                print 'Found ' + str(response['positives']) + ' virus alerts from Virus Analysis Sites, out of ' + str(response['total']) + ' for Domain: ' + response['resource']
+	        except TypeError, e:
+	            print ''
+	except ValueError, e:
+	    print ''	
