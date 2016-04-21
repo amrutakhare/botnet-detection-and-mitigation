@@ -3,9 +3,11 @@
 import re
 
 def detectMaliciousHttpRequests(pcapRecords, thresholdPercentage, windowSize):
+	instances = 0
 	for index, record in enumerate(pcapRecords):
 		if record.protocol=='HTTP':		
-			checkWindowFrame(index, pcapRecords, windowSize, thresholdPercentage)
+			instances = instances + checkWindowFrame(index, pcapRecords, windowSize, thresholdPercentage)
+	print 'Malicious HTTP Request Instances = ' + str(instances)
 
 				
 # Check how many HTTP Requests are sent to the same endpoint within the WindowSize.				
@@ -21,6 +23,8 @@ def checkWindowFrame(index, pcapRecords, windowSize, thresholdPercentage):
 				windowStart = windowStart + 1
 		if (countInWindow*100/windowSize) >= thresholdPercentage and index + windowSize < len(pcapRecords):
 				print 'Detected HTTP Request Endpoint Flooding between ' + str(pcapRecords[index].timestamp) + ' and ' + str(pcapRecords[index + windowSize].timestamp) + ': ' + str(countInWindow*100/windowSize) + '%'
+				return 1
+	return 0
 
 
 def extractRequestEndpoint(httpPacketInfo):
