@@ -1,9 +1,10 @@
 # ICMP Echo Packet Flooding Detector
 def detectICMPEchoFlooding(pcapRecords, thresholdPercentage, windowSize):
-	
+	instances= 0
 	for index, record in enumerate(pcapRecords):
 			if isICMPEchoPacket(record.protocol, record.info):		
-				checkWindowFrame(index, pcapRecords, windowSize, thresholdPercentage)
+				instances= instances + checkWindowFrame(index, pcapRecords, windowSize, thresholdPercentage)
+	print '\nICMP Echo Flooding instances = ' + str(instances)
 				
 				
 # Check how many ICMP Echo Packets are sent within the WindowSize.				
@@ -16,9 +17,10 @@ def checkWindowFrame(index, pcapRecords, windowSize, thresholdPercentage):
 			windowStart = windowStart + 1
 	if (countInWindow*100/windowSize) >= thresholdPercentage and index + windowSize < len(pcapRecords):
 			print 'Detected ICMP Echo Flooding between ' + str(pcapRecords[index].timestamp) + ' and ' + str(pcapRecords[index + windowSize].timestamp) + ': ' + str(countInWindow*100/windowSize) + '%'
-
+			return 1
+	return 0
+             
 
 # Check if the current packet contributes to the ICMP Echo Flooding
 def isICMPEchoPacket(protocol, info):
 	return protocol=='ICMP' and all( partialDetector in info for partialDetector in ['Echo (Ping)'])
-
