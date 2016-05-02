@@ -23,4 +23,4 @@ def checkWindowFrame(index, pcapRecords, windowSize, thresholdPercentage):
 
 # Check if the current packet contributes to the ICMP Echo Flooding
 def isICMPEchoPacket(protocol, info):
-	return protocol=='ICMP' and all( partialDetector in info for partialDetector in ['Echo (Ping)'])
+	return protocol=='ICMP' and all( partialDetector in info for partialDetector in ['Echo (ping)'])
